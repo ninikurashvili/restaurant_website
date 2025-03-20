@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basket</title>
+</head>
+<body class="bg-light">
+
+<header class="p-3 bg-white shadow-sm text-center fs-3 fw-bold" style="color: #933030;font-family:'monospace';">
+   <h1 style="font-weight: bold">Fresco</h1>
+</header>
+<nav class="nav nav-pills nav-justified p-3 bg-white shadow-sm sticky-top">
+    <a class="nav-item nav-link" style="color:#933030" href="{% url 'home' %}">Home</a>
+    <a class="nav-item nav-link active" style="background-color:#933030; " href="{% url 'all_menu_items' %}">Menu</a>
+    <a class="nav-item nav-link" style="color:#933030" href="{% url 'view_basket' %}">Basket</a>
+    <a class="nav-item nav-link" style="color:#933030" href="{% url 'check_availability' %}">Reservation</a>
+    <a class="nav-item nav-link" style="color:#933030" href="{% url 'profile' %}">Profile</a>
+    {% if user.is_authenticated %}
+        <a class="nav-item nav-link text-danger" href="{% url 'logout' %}">Logout</a>
+    {% else %}
+        <a class="nav-item nav-link" style="color:#933030" href="{% url 'login' %}">Login</a>
+        <a class="nav-item nav-link" style="color:#933030" href="{% url 'register' %}">Register</a>
+    {% endif %}
+</nav>
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-center">
+        <form method="GET" action="{% url 'menu_search' %}" class="row g-3 w-100">
+            <div class="col-md-3">
+                <input type="text" name="search" class="form-control" placeholder="Search menu..." value="{{ query }}">
+            </div>
+            <div class="col-md-3">
+                <select name="category" class="form-select">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}" {% if category.id|stringformat:"s" == selected_category %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100" style="background-color:#933030; border-color:#933030">Filter</button>
+            </div>
+        </form>
+    </div>
+    <div class="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-4 mt-4">
+        {% if menu_items %}
+            {% for item in menu_items %}
+                <div class="col">
+                    <div class="card h-100 shadow">
+                        {% if item.image %}
+                            <img class="card-img-top" src="{{ item.image.url }}" alt="Menu Image">
+                        {% else %}
+                            <p class="text-center text-muted py-3">No image available</p>
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ item.name }}</h5>
+                            <p class="card-text text-muted mb-1"><strong>Price:</strong> ${{ item.price }}</p>
+                            <p class="card-text text-muted mb-1"><strong>Nuts:</strong> {{ item.nuts }}</p>
+                            <p class="card-text text-muted mb-1"><strong>Vegetarian:</strong> {{ item.vegetarian }}</p>
+                        </div>
+                        <div class="card-footer bg-white border-0">
+                            <form action="{% url 'add_to_basket' item.id %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success w-100" style="background-color:#933030; border-color:#933030">Add to Basket</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-center text-danger mt-4">No items found.</p>
+        {% endif %}
+    </div>
+</div>
+</body>
+</html>

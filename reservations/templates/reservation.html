@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basket</title>
+</head>
+<body class="bg-light">
+<header class="p-3 bg-white shadow-sm text-center fs-3 fw-bold" style="color: #933030;font-family:'monospace';">
+   <h1 style="font-weight: bold">Fresco</h1>
+</header>
+<nav class="nav nav-pills nav-justified p-3 bg-white shadow-sm sticky-top">
+    <a class="nav-item nav-link" style="color:#933030" href="{% url 'home' %}">Home</a>
+    <a class="nav-item nav-link" style="color:#933030" href="{% url 'all_menu_items' %}">Menu</a>
+    <a class="nav-item nav-link" style="color:#933030" href="{% url 'view_basket' %}">Basket</a>
+    <a class="nav-item nav-link active" style="background-color:#933030; "  href="{% url 'check_availability' %}">Reservation</a>
+    <a class="nav-item nav-link" style="color:#933030" href="{% url 'profile' %}">Profile</a>
+    {% if user.is_authenticated %}
+        <a class="nav-item nav-link text-danger" href="{% url 'logout' %}">Logout</a>
+    {% else %}
+        <a class="nav-item nav-link" style="color:#933030" href="{% url 'login' %}">Login</a>
+        <a class="nav-item nav-link" style="color:#933030" href="{% url 'register' %}">Register</a>
+    {% endif %}
+</nav>
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Select Date and Time for Your Reservation</h2>
+
+    <div class="col-md-6 col-lg-5 mx-auto">
+        <form method="post" class="p-4 border rounded shadow bg-light">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="date" class="form-label">Date:</label>
+                <input type="date" class="form-control" name="date" min="{{ today }}" value="{{ date|default:'' }}" required>
+                {% if error_date %}
+                    <div class="text-danger">{{ error_date }}</div>
+                {% endif %}
+            </div>
+            <div class="mb-3">
+                <label for="time" class="form-label">Time:</label>
+                <input type="time" class="form-control" name="time" value="{{ time|default:'' }}" required>
+                {% if error_time %}
+                    <div class="text-danger">{{ error_time }}</div>
+                {% endif %}
+            </div>
+            <div class="mb-3">
+                <label for="people" class="form-label">Number of People:</label>
+                <input type="number" class="form-control" name="people" min="1" value="{{ people|default:'' }}" required>
+                {% if error_people %}
+                    <div class="text-danger">{{ error_people }}</div>
+                {% endif %}
+            </div>
+            <button type="submit" class="btn btn-primary w-100" style="background-color:#933030; border-color:#933030">Check Availability</button>
+        </form>
+    </div>
+
+    {% if all_tables %}
+        <h3 class="mt-4 text-center">Available Tables for {{ people }} Person(s) on {{ date }} at {{ time }}</h3>
+        <p class="text-center">Click on an available table to book it.</p>
+        <div class="mb-5 d-flex flex-wrap justify-content-center gap-2">
+            {% for table in all_tables %}
+                {% if table.id in available_table_ids %}
+                    <a href="{% url 'book_table' table.id date time people %}"
+                       class="d-flex align-items-center justify-content-center
+                              rounded text-decoration-none fw-bold bg-info text-dark"
+                       style="width: 100px; height: 100px;">
+                        {{ table.number }}
+                    </a>
+                {% else %}
+                    <div class="d-flex align-items-center justify-content-center
+                                rounded bg-danger text-white fw-bold"
+                         style="width: 100px; height: 100px;">
+                        {{ table.number }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <h3 class="text-center mt-4 text-muted">No tables available.</h3>
+    {% endif %}
+</div>
+</body>
+</html>

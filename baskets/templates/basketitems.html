@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basket</title>
+</head>
+<body class="bg-light">
+<header class="p-3 bg-white shadow-sm text-center fs-3 fw-bold" style="color: #933030;font-family:'monospace';">
+   <h1 style="font-weight: bold">Fresco</h1>
+</header>
+<nav class="nav nav-pills nav-justified p-3 bg-white shadow-sm sticky-top">
+    <a class="nav-item nav-link" style="color:#933030" href="{% url 'home' %}">Home</a>
+    <a class="nav-item nav-link" style="color:#933030" href="{% url 'all_menu_items' %}">Menu</a>
+    <a class="nav-item nav-link active" style="background-color:#933030; " href="{% url 'view_basket' %}">Basket</a>
+    <a class="nav-item nav-link" style="color:#933030" href="{% url 'check_availability' %}">Reservation</a>
+    <a class="nav-item nav-link" style="color:#933030" href="{% url 'profile' %}">Profile</a>
+    {% if user.is_authenticated %}
+        <a class="nav-item nav-link text-danger" href="{% url 'logout' %}">Logout</a>
+    {% else %}
+        <a class="nav-item nav-link" style="color:#933030" href="{% url 'login' %}">Login</a>
+        <a class="nav-item nav-link" style="color:#933030" href="{% url 'register' %}">Register</a>
+    {% endif %}
+</nav>
+<section class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10 col-sm-12">
+            {% if basket_items %}
+                {% for item in basket_items %}
+                    <div class="card shadow-sm mb-4">
+                        <div class="row g-0">
+                            <div class="col-md-3 d-flex align-items-center justify-content-center">
+                                {% if item.item.image %}
+                                    <img src="{{ item.item.image.url }}" class="img-fluid rounded" alt="Item Image">
+                                {% else %}
+                                    <p>No image available</p>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card-body">
+                                    <h5 class="card-title fw-bold">{{ item.item.name }}</h5>
+                                    <p class="text-muted mb-1"><strong>Nuts:</strong> {{ item.item.nuts }}</p>
+                                    <p class="text-muted"><strong>Vegetarian:</strong> {{ item.item.vegetarian }}</p>
+                                    <p class="text-danger"><strong>Quantity:</strong> {{ item.quantity }}</p>
+                                    <div class="d-flex gap-2 mt-2">
+                                        <form action="{% url 'increase_quantity' item.id %}" method="post">
+                                            {% csrf_token %}
+                                            <button class="btn btn-sm btn-outline-success">+</button>
+                                        </form>
+                                        <form action="{% url 'decrease_quantity' item.id %}" method="post">
+                                            {% csrf_token %}
+                                            <button class="btn btn-sm btn-outline-secondary">-</button>
+                                        </form>
+                                        <form action="{% url 'remove_from_basket' item.id %}" method="post">
+                                            {% csrf_token %}
+                                            <button class="btn btn-sm btn-outline-danger">Remove</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 d-flex flex-column justify-content-center align-items-center bg-light p-3">
+                                <p class="mb-1"><strong>Price:</strong> ${{ item.item.price }}</p>
+                                <p class="mb-0"><strong>Total:</strong> ${{ item.total_price }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                <div class="d-flex justify-content-between align-items-center mt-4 p-3 bg-white shadow-sm rounded">
+                    <h4 class="mb-0 fw-bold">Total Price: ${{ total_order_price }}</h4>
+                    <form method="post" action="{% url 'place_order' %}">
+                        {% csrf_token %}
+                        <button class="btn btn-success btn-lg">Place Order</button>
+                    </form>
+                </div>
+            {% else %}
+                <div class="text-center p-5 bg-white shadow rounded">
+                    <h3 class="fw-bold">Your basket is empty 🛒</h3>
+                    <p class="text-muted">Explore our <a href="{% url 'all_menu_items' %}" class="text-decoration-none fw-semibold text-primary">menu</a> and add items to your basket.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+</body>
+</html>

@@ -1,0 +1,26 @@
+{% extends 'profile.html' %}
+{% block content %}
+<div class="container mt-5">
+    <h3 class="mt-4 text-center mb-4">My Reservations</h3>
+    {% if reservations %}
+        <div class="row">
+            {% for res in reservations %}
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Table {{ res.table.number }}</h5>
+                            <p class="card-text">
+                                <strong>Date:</strong> {{ res.date|date:"Y-m-d" }}<br>
+                                <strong>Time:</strong> {{ res.time|date:"H:i" }}<br>
+                                <strong>People:</strong> {{ res.people }} people
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-center text-muted fs-5 mt-4">You have no reservations.</p>
+    {% endif %}
+</div>
+{% endblock %}
