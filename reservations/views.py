@@ -88,5 +88,4 @@ def cancel_reservation(request, reservation_id):
         messages.error(request, "You cannot cancel a past reservation.")
         return redirect('view_reservations')
     reservation.delete()
-    messages.success(request, "Your reservation has been canceled successfully.")
     return redirect('view_reservations')
