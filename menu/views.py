@@ -25,7 +25,7 @@ def menu_search(request):
     }
     return render(request, "menuitems.html", context)
 
-@login_required
+@login_required(login_url='login')
 def add_to_basket(request, item_id):
     menu_item = get_object_or_404(MenuItem, id=item_id)
     basket_item, created = Basket.objects.get_or_create(user=request.user, item=menu_item)

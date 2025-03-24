@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from baskets.models import Basket
@@ -24,7 +25,13 @@ def place_order(request):
             price=item.item.price
         )
         item.delete()
-    return redirect('view_basket')
+    return redirect('order_success')
+@login_required
+def cancel_order(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    order.status='Canceled'
+    order.save()
+    return redirect('view_order')
 
 @login_required
 def view_order(request):

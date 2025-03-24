@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+
 from reservations.models import Reservation, Table
 
 @login_required(login_url='login')
@@ -77,6 +79,14 @@ def book_table(request, table_id, date, time, people):
 
 @login_required
 def view_reservations(request):
-    reservations = Reservation.objects.filter(user=request.user).order_by('-date', '-time')
+    reservations = Reservation.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'my_reservation.html', {'reservations': reservations})
 
+def cancel_reservation(request, reservation_id):
+    reservation = get_object_or_404(Reservation, id=reservation_id)
+    if reservation.date < datetime.now().date():  # Only compares the date (ignoring time)
+        messages.error(request, "You cannot cancel a past reservation.")
+        return redirect('view_reservations')
+    reservation.delete()
+    messages.success(request, "Your reservation has been canceled successfully.")
+    return redirect('view_reservations')

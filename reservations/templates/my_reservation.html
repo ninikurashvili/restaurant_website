@@ -4,6 +4,13 @@
     <h3 class="mt-4 text-center mb-4">My Reservations</h3>
     {% if reservations %}
         <div class="row">
+    {% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+     {% endif %}
             {% for res in reservations %}
                 <div class="col-md-4 mb-4">
                     <div class="card">
@@ -12,8 +19,15 @@
                             <p class="card-text">
                                 <strong>Date:</strong> {{ res.date|date:"Y-m-d" }}<br>
                                 <strong>Time:</strong> {{ res.time|date:"H:i" }}<br>
-                                <strong>People:</strong> {{ res.people }} people
+                                <strong>People:</strong> {{ res.people_number }}
                             </p>
+                            {% now "Y-m-d" as current_date %}
+                            {% if res.date|date:"Y-m-d" >= current_date %}
+                                <form action="{% url 'cancel_reservation' res.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm">Cancel Reservation</button>
+                                </form>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
